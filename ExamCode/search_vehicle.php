@@ -4,9 +4,9 @@
 
 // 1. เชื่อมต่อฐานข้อมูล
 $host = 'localhost'; // ชื่อโฮสต์ของฐานข้อมูล
-$dbname = 'your_database_name'; // ชื่อฐานข้อมูล
-$username = 'your_username'; // ชื่อผู้ใช้ฐานข้อมูล
-$password = 'your_password'; // รหัสผ่านฐานข้อมูล
+$dbname = 'udru'; // ชื่อฐานข้อมูล
+$username = 'root'; // ชื่อผู้ใช้ฐานข้อมูล
+$password = ''; // รหัสผ่านฐานข้อมูล
 
 $conn = new mysqli($host, $username, $password, $dbname);
 
@@ -16,7 +16,7 @@ if ($conn->connect_error) {
 }
 
 // 2. รับค่าจากฟอร์มค้นหา (ตัวอย่าง)
-$searchKeyword = $_POST['searchKeyword']; // คีย์เวิร์ดสำหรับค้นหา (ป้ายทะเบียนหรือรหัสนักศึกษา)
+ $searchKeyword = $_GET['searchKeyword']; // คีย์เวิร์ดสำหรับค้นหา (ป้ายทะเบียนหรือรหัสนักศึกษา)
 
 // 3. เตรียมคำสั่ง SQL สำหรับค้นหา
 $sql = "SELECT * FROM vehicle 

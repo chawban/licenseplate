@@ -1,19 +1,51 @@
 <?php
 include './config/db_connection.php';
+error_reporting(0);
 
 $searchStudentID = '';
 $searchStudentName = '';
 $searchGender = '';
 
-// ตรวจสอบว่ามีการค้นหาหรือไม่
+
+// ตรวจสอบว่ามีการส่งมาจาก Modal เพื่อ Update หรือไม่
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $searchStudentID = $_POST['StudentID'];
-    $searchName = $_POST['StudentName'];
-    $searchGender = $_POST['Gender'];
+    $StudentID = $_POST['StudentID'];    
+    $Studentname = $_POST['StudentName'];
+    $gender = $_POST['Gender'];
+    $dob = $_POST['DateOfBirth'];
+    $email = $_POST['Email'];
+    $phone = $_POST['PhoneNumber'];
+    $address = $_POST['Address'];
+    $city = $_POST['City'];
+    $state = $_POST['State'];
+    $postal_code = $_POST['PostalCode'];
+    $country = $_POST['Country'];
+    $enrollment_date = $_POST['EnrollmentDate'];
+    $program = $_POST['Program'];
+    $StudentStatus = $_POST['StudentStatus'];
+
+    $sql_update = "UPDATE student SET StudentName = '$Studentname', Gender = '$gender', DateOfBirth = '$dob', Email = '$email', PhoneNumber = '$phone', Address = '$address', 
+                  City = '$city', State = '$state', PostalCode = '$postal_code', Country = '$country', EnrollmentDate = '$enrollment_date', Program = '$program', StudentStatus = '$StudentStatus'
+                  WHERE StudentID = '$StudentID'";
+
+    // print $sql_update;  
+
+    if ($conn->query($sql_update) === TRUE) {
+        echo "Record updated successfully.";
+    } else {
+        echo "Error: " . $sql_update . "<br>" . $conn->error;
+    }
+}
+
+// ตรวจสอบว่ามีการค้นหาหรือไม่
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    $searchStudentID = $_GET['StudentID'];
+    $searchStudentName = $_GET['StudentName'];
+    $searchStudentGender = $_GET['Gender'];
 
     $sql = "SELECT * FROM student WHERE StudentID LIKE '%$searchStudentID%' 
-            AND StudentName LIKE '%$searchName%' 
-            AND Gender LIKE '%$searchGender%'";
+            AND StudentName LIKE '%$searchStudentName%' 
+            AND Gender LIKE '%$searchStudentGender%'";
 } else {
     $sql = "SELECT * FROM student";
 }
@@ -39,6 +71,17 @@ $result = $conn->query($sql);
         * {
             font-family: K2D, sans-serif;
         }
+
+        /* Apply bold effect when hovering over the link */
+        #studentTable a:hover { 
+            font-weight: bold; 
+        }
+
+        /* Ensure links inside <td> become bold when hovering over the row */
+        #studentTable tbody tr:hover td {
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -47,7 +90,7 @@ $result = $conn->query($sql);
     <h2 class="mb-4">รายการนักศึกษา</h2>
 
     <!-- ฟอร์มค้นหาข้อมูล -->
-    <form action="view_students3.php" method="POST" class="mb-4">
+    <form action="?" method="GET" class="mb-4">
         <div class="row">
             <div class="col-md-3">
                 <label for="StudentID" class="form-label">รหัสนักศึกษา</label>
@@ -60,9 +103,9 @@ $result = $conn->query($sql);
             <div class="col-md-2">
                 <label for="Gender" class="form-label">เพศ</label>
                 <select class="form-select" id="Gender" name="Gender">
-                    <option value="" <?php echo ($searchGender == '') ? 'selected' : ''; ?>>ทั้งหมด</option>
-                    <option value="M" <?php echo ($searchGender == 'M') ? 'selected' : ''; ?>>ชาย</option>
-                    <option value="F" <?php echo ($searchGender == 'F') ? 'selected' : ''; ?>>หญิง</option>
+                    <option value="" <?php echo ($searchStudentGender == '') ? 'selected' : ''; ?>>ทั้งหมด</option>
+                    <option value="M" <?php echo ($searchStudentGender == 'M') ? 'selected' : ''; ?>>ชาย</option>
+                    <option value="F" <?php echo ($searchStudentGender == 'F') ? 'selected' : ''; ?>>หญิง</option>
                 </select>
             </div>
             <div class="col-md-2 d-flex align-items-end">
@@ -74,7 +117,7 @@ $result = $conn->query($sql);
     <!-- ตารางข้อมูลนักศึกษา -- >
     <table class="table table-hover table-bordered" -->
     <table id="studentTable"
-        class="table table-striped table-bordered"
+        class="table table-striped table-bordered table-hover"
         data-toggle="table"
         data-search="true"
         data-pagination="true"
@@ -85,6 +128,7 @@ $result = $conn->query($sql);
             <tr>
                 <th>StudentID</th>
                 <th>Name</th>
+                <th>รายละเอียด</th>
                 <th>Gender</th>
                 <!-- th>DateOfBirth</th>
                 <th>Email</th>
@@ -101,8 +145,15 @@ $result = $conn->query($sql);
                 // output data of each row
                 while($row = $result->fetch_assoc()) {
                     echo "<tr>";
-                    echo "<td>" . $row["StudentID"] . "</td>";
-                    echo "<td>" . $row["StudentName"] . "</td>";
+
+                    //echo "<td>" . $row["StudentID"] . "</td>";
+                    echo "<td> <a href='StudentDataShow.php?StudentID=".$row["StudentID"]."'>" . $row["StudentID"] . " </a></td>";
+                    echo "<td> <a href='StudentDataShow.php?StudentID=".$row["StudentID"]."'>" . $row["StudentName"] . " </a></td>";
+
+                    echo '<td>
+                           <a href="#" class="btn btn-info btn-sm btn_View" data-id="'.$row['StudentID'].'" data-bs-toggle="modal" data-bs-target="#studentModal">View</a>
+                          </td>';
+                
                     echo "<td>" . $row["Gender"] . "</td>";
  //                   echo "<td>" . $row["DateOfBirth"] . "</td>";
  //                   echo "<td>" . $row["Email"] . "</td>";
@@ -111,7 +162,7 @@ $result = $conn->query($sql);
                     echo "<td>" . $row["State"] . "</td>";
                     echo "<td>" . $row["StudentStatus"] . "</td>";
                     echo "<td>
-                            <a href='edit_student2.php?StudentID=" . $row["StudentID"] . "' class='btn btn-warning btn-sm'>Edit</a>
+                            <a href='edit_student2.php?StudentID=" . $row["StudentID"] . "' class='btn btn-warning btn-sm btn_Edit' data-id='".$row['StudentID']."'>Edit</a>
                             <a data-id='". $row["StudentID"] ."' href='delete_student.php?StudentID=" . $row["StudentID"] . "' class='btn btn-danger btn-sm btn_Delete'>Delete</a>
                           </td>";
                     echo "</tr>";
@@ -122,6 +173,17 @@ $result = $conn->query($sql);
             ?>
         </tbody>
     </table>
+
+    <nav aria-label="...">
+        <ul class="pagination pagination-sm">
+            <li class="page-item active" aria-current="page">
+            <span class="page-link">1</span>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+        </ul>
+    </nav>
+
 </div>
 
 
@@ -144,6 +206,8 @@ $result = $conn->query($sql);
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+
+
     document.querySelectorAll(".btn_Delete").forEach(button => {
         button.addEventListener("click", function(event) {
             event.preventDefault(); // Prevent default action
@@ -187,5 +251,106 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
     });
+
+
+    document.querySelectorAll(".btn_View").forEach(button => {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+
+            let studentId = this.getAttribute("data-id");
+
+            // Show modal
+            let studentModal = new bootstrap.Modal(document.getElementById("studentModal"));
+            studentModal.show();
+
+            // Load student data using AJAX  studentDataShow.php
+            fetch("studentDataShowTable.php?StudentID=" + studentId)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("studentDetails").innerHTML = data;
+            })
+            .catch(error => {
+                document.getElementById("studentDetails").innerHTML = "<p class='text-danger text-center'>Error loading student data.</p>";
+            });
+        });
+    });
+
+
+
+    document.querySelectorAll(".btn_Edit").forEach(button => {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+
+            let studentId = this.getAttribute("data-id");
+
+            // Show modal
+            let studentModal = new bootstrap.Modal(document.getElementById("studentModal"));
+            studentModal.show();
+
+            // Load student data using AJAX  studentDataShow.php
+            fetch("edit_student2Modal.php?StudentID=" + studentId)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("studentDetails").innerHTML = data;
+            })
+            .catch(error => {
+                document.getElementById("studentDetails").innerHTML = "<p class='text-danger text-center'>Error loading student data.</p>";
+            });
+        });
+    });
+
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("editStudentForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let formData = new FormData(this);
+
+        fetch("update_student.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: "อัปเดตสำเร็จ!",
+                    text: data.message,
+                    icon: "success",
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    let modal = bootstrap.Modal.getInstance(document.getElementById("studentModal"));
+                    modal.hide(); // Close Modal
+                    location.reload(); // Reload Page to Show Updated Data
+                });
+            } else {
+                Swal.fire("เกิดข้อผิดพลาด!", data.message, "error");
+            }
+        })
+        .catch(error => {
+            Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถอัปเดตข้อมูลได้", "error");
+        });
+    });
+});    
+
+
 });
+  
+ 
 </script>
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studentModalLabel">รายละเอียดนักศึกษา</h5>                 
+            </div>
+            <div class="modal-body" id="studentDetails">
+                <p class="text-center">Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>

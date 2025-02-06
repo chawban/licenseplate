@@ -1,0 +1,33 @@
+SELECT
+	vehicle.VehicleID, 
+	vehicle.LicensePlate, 
+	vehicle.VehicleType, 
+	vehicle.Brand, 
+	vehicle.Model, 
+	vehicle.Color
+FROM
+	vehicle
+WHERE	
+    vehicle.VehicleID = 2
+
+------------------------------------------------------
+SELECT
+	vehicle.VehicleID, 
+	vehicle.LicensePlate, 
+	vehicle.VehicleType, 
+	vehicle.Brand, 
+	vehicle.Model, 
+	vehicle.Color, 
+	vehicleentrylog.VehicleID, 
+	vehicleentrylog.StudentID, 
+	vehicleentrylog.EntryTime, 
+	vehicleentrylog.ExitTime, 
+	vehicleentrylog.GateNumber, 
+	vehicleentrylog.LogStatus, 
+	vehicleentrylog.LastUpdated
+FROM
+	vehicleentrylog
+WHERE
+	vehicleentrylog.VehicleID = 2
+
+
